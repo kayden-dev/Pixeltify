@@ -4,7 +4,7 @@ import cryptoRandomString from "crypto-random-string";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser"
 import queryString from "query-string";
-
+import bodyParser from "body-parser";
 
 // creates the express app and sets up relevant middleware
 const app = express();
@@ -41,7 +41,7 @@ app.get("/login",(req,res)=>{
 });
 
 // route called after user authorization
-app.get('/callback', async (req, res) => {
+app.get("/callback", async (req, res) => {
     // gets the code, state and stored state from the response
     const code = req.query.code || null; 
     const state = req.query.state || null;
@@ -68,7 +68,7 @@ app.get('/callback', async (req, res) => {
             // saves the access token and refresh token as cookies
             res.cookie("aTok",result.data.access_token,{
                 httpOnly: true,
-                maxAge: 1000, // NOTE: its in milliseconds
+                maxAge: 10,//3600000,
                 sameSite: true,
                 secure: true
             });
@@ -78,28 +78,64 @@ app.get('/callback', async (req, res) => {
                 secure: true
             });
 
-            // testing purposes only
-            res.redirect("/cookieTest");
+            // redirects to the start endpoint
+            // testing 
+            console.log("old access token is " + result.data.access_token);
+            res.redirect("/start");
+
           } catch (error) {
-            res.send("ERROR: Unable to get access token " + error.message);
+            res.send("ERROR: " + error.message);
           }
     }
 });
 
-// TESTING if cookies are deleted at the end of lifetime specified
-app.get("/cookieTest",(req,res)=>{
-    res.render("cookieTest.ejs");
+// route for starting the game
+app.get("/start", async (req,res)=>{
+    // retrieves the access token if it exists
+    if (!req.cookies.aTok){
+        console.log("access token does not exist");
+        const accessToken = await getAccessToken(req);
+        console.log("new access token is " + accessToken);
+    }
+    res.send("start page loaded");
 });
 
-app.get("/testCookie",(req,res)=>{
-    console.log(req.cookies.aTok);
-    if(req.cookies.aTok){
-        console.log("cookie alive");
-    } else {
-        console.log("cookie dead");
-    }
-});
+
+// TESTING if cookies are deleted at the end of lifetime specified
+// app.get("/cookieTest",(req,res)=>{
+//     res.render("cookieTest.ejs");
+// });
+
+// app.get("/testCookie",(req,res)=>{
+//     console.log(req.cookies.aTok);
+//     if(req.cookies.aTok){
+//         console.log("cookie alive");
+//     } else {
+//         console.log("cookie dead");
+//     }
+// });
+
 app.listen(port,() => {
     console.log(`Server is running on port ${port}`);
 });
+
+// function gets the access token using the refresh token
+async function getAccessToken (req) {
+    const refreshToken = req.cookies.rTok;
+    try{
+        const result = await axios.post("https://accounts.spotify.com/api/token", {
+            grant_type: "refresh_token",
+            refresh_token: refreshToken
+        },{
+            headers:{
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization" : "Basic " + (new Buffer.from(clientId + ':' + clientSecret).toString('base64'))
+            }
+            
+        });
+        return result.data.access_token;
+    } catch (error) {
+        console.log("ERROR: " + error.message);
+    }
+}
 
