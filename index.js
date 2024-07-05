@@ -11,6 +11,7 @@ const app = express();
 const port = 3000;
 dotenv.config();
 app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // constants related to the application
 const clientId = process.env.CLIENT_ID;
@@ -68,7 +69,7 @@ app.get("/callback", async (req, res) => {
             // saves the access token and refresh token as cookies
             res.cookie("aTok",result.data.access_token,{
                 httpOnly: true,
-                maxAge: 10,//3600000,
+                maxAge: 3600000,
                 sameSite: true,
                 secure: true
             });
@@ -78,9 +79,10 @@ app.get("/callback", async (req, res) => {
                 secure: true
             });
 
+            // testing the original access and refresh token
+            console.log("original access token " + result.data.access_token);
+
             // redirects to the start endpoint
-            // testing 
-            console.log("old access token is " + result.data.access_token);
             res.redirect("/start");
 
           } catch (error) {
@@ -93,9 +95,28 @@ app.get("/callback", async (req, res) => {
 app.get("/start", async (req,res)=>{
     // retrieves the access token if it exists
     if (!req.cookies.aTok){
+        // if it doesn't exist, then resets the access token
         console.log("access token does not exist");
-        const accessToken = await getAccessToken(req);
-        console.log("new access token is " + accessToken);
+        const newAccessToken = await getAccessToken(req);
+
+        res.cookie("aTok",newAccessToken,{
+            httpOnly: true,
+            maxAge: 3600000,
+            sameSite: true,
+            secure: true
+        });
+    } 
+
+    // gets the users top songs and chooses a random album
+    try {
+        const result = await axios.get(/*`https://api.spotify.com/v1/search?q=${queryString.stringify({q:"starboy the weeknd"})}&type=track`*/"https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50&offset=0",{
+            headers:{
+                "Authorization" : "Bearer " + req.cookies.aTok
+            }
+        });
+        console.log(result.data.items[2].album.name);
+    } catch (error) {
+        console.log("ERROR: " + error.message);
     }
     res.send("start page loaded");
 });
@@ -121,8 +142,10 @@ app.listen(port,() => {
 
 // function gets the access token using the refresh token
 async function getAccessToken (req) {
+    // gets the refresh token through the cookie
     const refreshToken = req.cookies.rTok;
-    try{
+    // retrieves the new access token using the refresh token
+    try {
         const result = await axios.post("https://accounts.spotify.com/api/token", {
             grant_type: "refresh_token",
             refresh_token: refreshToken
@@ -133,6 +156,7 @@ async function getAccessToken (req) {
             }
             
         });
+        // returns the new access token
         return result.data.access_token;
     } catch (error) {
         console.log("ERROR: " + error.message);
