@@ -110,23 +110,46 @@ app.get("/start", async (req,res)=>{
 
     // gets the users top songs and chooses a random album
     try {
-        const result = await axios.get(/*`https://api.spotify.com/v1/search?q=${queryString.stringify({q:"starboy the weeknd"})}&type=track`*/"https://api.spotify.com/v1/me/top/tracks?time_range=medium_term&limit=50&offset=0",{
+        const result1 = await axios.get(/*`https://api.spotify.com/v1/search?q=${queryString.stringify({q:"starboy the weeknd"})}&type=track`*/"https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50&offset=0",{
             headers:{
                 "Authorization" : "Bearer " + req.cookies.aTok
             }
         });
+        const result2 = await axios.get(/*`https://api.spotify.com/v1/search?q=${queryString.stringify({q:"starboy the weeknd"})}&type=track`*/"https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50&offset=1",{
+            headers:{
+                "Authorization" : "Bearer " + req.cookies.aTok
+            }
+        });
+        const result3 = await axios.get(/*`https://api.spotify.com/v1/search?q=${queryString.stringify({q:"starboy the weeknd"})}&type=track`*/"https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50&offset=2",{
+            headers:{
+                "Authorization" : "Bearer " + req.cookies.aTok
+            }
+        });
+        const result4 = await axios.get(/*`https://api.spotify.com/v1/search?q=${queryString.stringify({q:"starboy the weeknd"})}&type=track`*/"https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50&offset=3",{
+            headers:{
+                "Authorization" : "Bearer " + req.cookies.aTok
+            }
+        });
+
+
         // chooses a random song and gets its album picture
-        const topSongList = result.data.items;
-        const randomAlbumCover = topSongList[Math.floor(Math.random()*topSongList.length)].album.images[0].url;
+        const topSongList = result1.data.items.concat(result2.data.items).concat(result3.data.items).concat(result4.data.items);
+        topSongList.forEach(song=>{
+            console.log(song.name);
+        });
+        const randomAlbumCover = topSongList[Math.floor(Math.random()*topSongList.length)].album.images[0];
 
         // saves the album url as a cookie
-        res.cookie("img",randomAlbumCover);
+        res.cookie("img",randomAlbumCover.url);
 
         // initialises the number of guesses
         res.cookie("guess",0);
 
         // testing pixelating the image
-        pixelateImage(randomAlbumCover,res);
+        const pixelatedImg = await pixelateImage(randomAlbumCover,res);
+        console.log(randomAlbumCover.width)
+        console.log(randomAlbumCover.url);
+        res.send(`<img src="${pixelatedImg}"></img>`);
 
     } catch (error) {
         console.log("ERROR: " + error.message);
@@ -177,15 +200,21 @@ async function getAccessToken (req) {
 
 // function pixelates an image and returns the link
 async function pixelateImage (imgURL,res) {
+    // NOTE: progression idea
+    // image cell goes from 320 -> 160 -> 80 -> 40 -> 20
+    // player gets 5 guesses per album
     try {
+        // gets the image and pixelates it
         const image = await Jimp.read(imgURL);
-        image.pixelate(100);
+        image.pixelate(20);
 
+        // saves the image into a buffer and converts it to a base64 string
         const buffer = await image.getBufferAsync(Jimp.MIME_JPEG);
-
         const base64Image = buffer.toString("base64");
+
+        // saves the image into a data url and returns it
         const dataURL = `data:image/jpeg;base64,${base64Image}`;
-        res.send(dataURL);
+        return dataURL;
     } catch (error){
         console.log("Error processing image" + error.message);
     }
