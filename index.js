@@ -109,18 +109,28 @@ app.get("/start", async (req,res)=>{
 
     // gets the users top songs and chooses a random album
     try {
-        const result = await axios.get(/*`https://api.spotify.com/v1/search?q=${queryString.stringify({q:"starboy the weeknd"})}&type=track`*/"https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50&offset=0",{
+        const result = await axios.get(/*`https://api.spotify.com/v1/search?q=${queryString.stringify({q:"starboy the weeknd"})}&type=track`*/"https://api.spotify.com/v1/me/top/tracks?time_range=medium_term&limit=50&offset=0",{
             headers:{
                 "Authorization" : "Bearer " + req.cookies.aTok
             }
         });
-        console.log(result.data.items[2].album.name);
+        // chooses a random song and gets its album picture
+        const topSongList = result.data.items;
+        const randomAlbumCover = topSongList[Math.floor(Math.random()*topSongList.length)].album.images[0].url;
+
+        // saves the album url as a cookie
+        res.cookie("img",randomAlbumCover);
+
+        // initialises the number of guesses
+        res.cookie("guess",0);
+
+        // sends the page to the client
+        
     } catch (error) {
         console.log("ERROR: " + error.message);
     }
-    res.send("start page loaded");
+    //res.send("start page loaded");
 });
-
 
 // TESTING if cookies are deleted at the end of lifetime specified
 // app.get("/cookieTest",(req,res)=>{
