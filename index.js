@@ -115,17 +115,17 @@ app.get("/start", async (req,res)=>{
                 "Authorization" : "Bearer " + req.cookies.aTok
             }
         });
-        const result2 = await axios.get(/*`https://api.spotify.com/v1/search?q=${queryString.stringify({q:"starboy the weeknd"})}&type=track`*/"https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50&offset=1",{
+        const result2 = await axios.get(result1.data.next,{
             headers:{
                 "Authorization" : "Bearer " + req.cookies.aTok
             }
         });
-        const result3 = await axios.get(/*`https://api.spotify.com/v1/search?q=${queryString.stringify({q:"starboy the weeknd"})}&type=track`*/"https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50&offset=2",{
+        const result3 = await axios.get(result2.data.next,{
             headers:{
                 "Authorization" : "Bearer " + req.cookies.aTok
             }
         });
-        const result4 = await axios.get(/*`https://api.spotify.com/v1/search?q=${queryString.stringify({q:"starboy the weeknd"})}&type=track`*/"https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50&offset=3",{
+        const result4 = await axios.get(result3.data.next,{
             headers:{
                 "Authorization" : "Bearer " + req.cookies.aTok
             }
