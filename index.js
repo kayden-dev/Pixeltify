@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser"
 import queryString from "query-string";
 import bodyParser from "body-parser";
+import Jimp from "jimp";
 
 // creates the express app and sets up relevant middleware
 const app = express();
@@ -124,8 +125,9 @@ app.get("/start", async (req,res)=>{
         // initialises the number of guesses
         res.cookie("guess",0);
 
-        // sends the page to the client
-        
+        // testing pixelating the image
+        pixelateImage(randomAlbumCover,res);
+
     } catch (error) {
         console.log("ERROR: " + error.message);
     }
@@ -173,3 +175,18 @@ async function getAccessToken (req) {
     }
 }
 
+// function pixelates an image and returns the link
+async function pixelateImage (imgURL,res) {
+    try {
+        const image = await Jimp.read(imgURL);
+        image.pixelate(100);
+
+        const buffer = await image.getBufferAsync(Jimp.MIME_JPEG);
+
+        const base64Image = buffer.toString("base64");
+        const dataURL = `data:image/jpeg;base64,${base64Image}`;
+        res.send(dataURL);
+    } catch (error){
+        console.log("Error processing image" + error.message);
+    }
+}
