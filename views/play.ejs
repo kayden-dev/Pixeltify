@@ -18,27 +18,14 @@
       <input type="text" name="searchInput">
       <input type="submit" value="search">
     </form>
-    <% if (locals.albumList) { %>
+
+    <% if (locals.albums) { %>
+     <% albums.forEach(album=>{ %>
       <form method="post" action="/check">
-        <input type="hidden" name="searchRes" value="hello world 1">
-        <input id="testValue" type="submit" value="search">
+        <input type="hidden" name="searchRes" value="<%= album.images[0].url %>">
+        <input type="submit" value="<%= album.name %> by <%= album.artists[0].name %>">
       </form>
-      <form method="post" action="/check">
-        <input type="hidden" name="searchRes" value="hello world 2">
-        <input id="testValue" type="submit" value="search">
-      </form>
-      <form method="post" action="/check">
-        <input type="hidden" name="searchRes" value="hello world 3">
-        <input id="testValue" type="submit" value="search">
-      </form>
-      <form method="post" action="/check">
-        <input type="hidden" name="searchRes" value="hello world 4">
-        <input id="testValue" type="submit" value="search">
-      </form>
-      <form method="post" action="/check">
-        <input type="hidden" name="searchRes" value="hello world 5">
-        <input id="testValue" type="submit" value="search">
-      </form>
+     <%}) %>
     <% } %>
 
     <!-- search bar -->

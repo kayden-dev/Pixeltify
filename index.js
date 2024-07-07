@@ -136,7 +136,7 @@ app.get("/start", async (req,res)=>{
         res.cookie("guess",0);
 
         // testing pixelating the image
-        const pixelatedImg = await pixelateImage(randomAlbumCover,res);
+        const pixelatedImg = await pixelateImage(randomAlbumCover);
         console.log(randomAlbumCover.width)
         console.log(randomAlbumCover.url);
         res.render("play.ejs",{img:pixelatedImg});
@@ -167,44 +167,46 @@ app.post("/search",async (req,res)=>{
     // searches for the albums related to the users search
     const userSearch = req.body.searchInput;
     try {
-        const result = await axios.get(`https://api.spotify.com/v1/search?q=${userSearch}&type=album&limit=5`,{
+        const result = await axios.get(`https://api.spotify.com/v1/search?q=${userSearch}&type=album&limit=50`,{
             headers:{
                 "Authorization" : "Bearer " + accessToken
             }
         });
-        console.log("RAW DATA");
-        result.data.albums.items.forEach(album=>{
-            console.log(album.name + " by " + album.artists[0].name);
-        });
 
+        // gets the top 5 results, ensuring there are no duplicates
         let userAlbums = [];
+        // iterates through each album, and compares it to the albums currently in userAlbums
         result.data.albums.items.forEach(newAlbum=>{
+            // checks if the album is in userAlbums by comparing the name and artist name
             let inArray = false;
             userAlbums.forEach(prevAlbum=>{
                 if (newAlbum.name === prevAlbum.name && newAlbum.artists[0].name === prevAlbum.artists[0].name){
-                    console.log(newAlbum.name + " matches with " + prevAlbum.name);
+                    //console.log(newAlbum.name + " matches with " + prevAlbum.name);
                     inArray = true;
                 }
             });
-            if (inArray === false){
+
+            // if the album is not in userAlbums and there is less than 5 albums
+            if (inArray === false && userAlbums.length < 5){
                 userAlbums.push(newAlbum);
-                
             }
         });
-        console.log("FILTERED DATA")
-        userAlbums.forEach(album=>
-            console.log(album.name + " by " + album.artists[0].name)
-        )
+
+        // renders the page with the options
+        const pixelatedImg = await pixelateImage(req.cookies.img);
+        res.render("play.ejs",{img:pixelatedImg,albums:userAlbums});
+
     } catch (error){
         console.log("ERROR: " + error.message);
     }
 
-    // search results will be in the format of an array of 
+    // search results will be in the format  of an array of 
     // album name, artist name, album url
 });
 
 app.post("/check",(req,res)=>{
     // check the result the user chose
+    console.log(req.body.searchRes);
 });
 
 // TESTING if cookies are deleted at the end of lifetime specified
@@ -270,7 +272,7 @@ async function getAccessToken (req,res) {
 }
 
 // function pixelates an image and returns the link
-async function pixelateImage (imgURL,res) {
+async function pixelateImage (imgURL) {
     // NOTE: progression idea
     // image cell goes from 320 -> 160 -> 80 -> 40 -> 20
     // player gets 5 guesses per album
