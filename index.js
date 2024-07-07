@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser"
 import queryString from "query-string";
 import bodyParser from "body-parser";
 import Jimp from "jimp";
+import looksSame from "looks-same";
 
 // creates the express app and sets up relevant middleware
 const app = express();
@@ -124,9 +125,6 @@ app.get("/start", async (req,res)=>{
 
         // chooses a random song and gets its album picture
         const topSongList = result1.data.items.concat(result2.data.items).concat(result3.data.items).concat(result4.data.items);
-        topSongList.forEach(song=>{
-            console.log(song.name);
-        });
         const randomAlbumCover = topSongList[Math.floor(Math.random()*topSongList.length)].album.images[0];
 
         // saves the album url as a cookie
@@ -137,8 +135,6 @@ app.get("/start", async (req,res)=>{
 
         // testing pixelating the image
         const pixelatedImg = await pixelateImage(randomAlbumCover);
-        console.log(randomAlbumCover.width)
-        console.log(randomAlbumCover.url);
         res.render("play.ejs",{img:pixelatedImg});
 
     } catch (error) {
@@ -167,16 +163,18 @@ app.post("/search",async (req,res)=>{
     // searches for the albums related to the users search
     const userSearch = req.body.searchInput;
     try {
-        const result = await axios.get(`https://api.spotify.com/v1/search?q=${userSearch}&type=album&limit=50`,{
+        const result = await axios.get(`https://api.spotify.com/v1/search?${queryString.stringify({q: userSearch})}&type=album&limit=50`,{
             headers:{
                 "Authorization" : "Bearer " + accessToken
             }
         });
+        console.log(`https://api.spotify.com/v1/search?${queryString.stringify({q: userSearch})}&type=album&limit=50`);
 
         // gets the top 5 results, ensuring there are no duplicates
         let userAlbums = [];
         // iterates through each album, and compares it to the albums currently in userAlbums
         result.data.albums.items.forEach(newAlbum=>{
+            console.log(newAlbum.name);
             // checks if the album is in userAlbums by comparing the name and artist name
             let inArray = false;
             userAlbums.forEach(prevAlbum=>{
@@ -199,29 +197,27 @@ app.post("/search",async (req,res)=>{
     } catch (error){
         console.log("ERROR: " + error.message);
     }
-
-    // search results will be in the format  of an array of 
-    // album name, artist name, album url
 });
 
-app.post("/check",(req,res)=>{
+
+app.post("/check", async(req,res)=>{
     // check the result the user chose
-    console.log(req.body.searchRes);
+    console.log("CHECKING...");
+
+    // converts the urls to images
+    const image1 = await Jimp.read(req.body.searchRes);
+    const image2 = await Jimp.read(req.cookies.img);
+    
+    // save the images to a buffer
+    const buffer1 = await image1.getBufferAsync(Jimp.MIME_JPEG);
+    const buffer2 = await image2.getBufferAsync(Jimp.MIME_JPEG);
+
+
+    const result = await looksSame(buffer1,buffer2);
+    console.log(result.equal);
+
+    res.redirect("/start");
 });
-
-// TESTING if cookies are deleted at the end of lifetime specified
-// app.get("/cookieTest",(req,res)=>{
-//     res.render("cookieTest.ejs");
-// });
-
-// app.get("/testCookie",(req,res)=>{
-//     console.log(req.cookies.aTok);
-//     if(req.cookies.aTok){
-//         console.log("cookie alive");
-//     } else {
-//         console.log("cookie dead");
-//     }
-// });
 
 app.listen(port,() => {
     console.log(`Server is running on port ${port}`);
@@ -232,7 +228,6 @@ async function getAccessToken (req,res) {
     if (req.cookies.aTok){
         return req.cookies.aTok
 
-        accessToken = await getAccessToken(req);
     } else {
         // if it doesn't exist, then resets the access token
         console.log("access token does not exist");
