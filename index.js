@@ -70,7 +70,7 @@ app.get("/callback", async (req, res) => {
             // saves the access token and refresh token as cookies
             res.cookie("aTok",result.data.access_token,{
                 httpOnly: true,
-                maxAge: 3600000,
+                maxAge: 10,//3600000,
                 sameSite: true,
                 secure: true
             });
@@ -95,39 +95,42 @@ app.get("/callback", async (req, res) => {
 // route for starting the game
 app.get("/start", async (req,res)=>{
     // retrieves the access token if it exists
+    let accessToken;
     if (!req.cookies.aTok){
         // if it doesn't exist, then resets the access token
         console.log("access token does not exist");
-        const newAccessToken = await getAccessToken(req);
+        accessToken = await getAccessToken(req);
 
-        res.cookie("aTok",newAccessToken,{
+        res.cookie("aTok",accessToken,{
             httpOnly: true,
             maxAge: 3600000,
             sameSite: true,
             secure: true
         });
-    } 
-
+    } else {
+        accessToken = req.cookies.aTok;
+    }
+    console.log("received access token: " + accessToken);
     // gets the users top songs and chooses a random album
     try {
         const result1 = await axios.get(/*`https://api.spotify.com/v1/search?q=${queryString.stringify({q:"starboy the weeknd"})}&type=track`*/"https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50&offset=0",{
             headers:{
-                "Authorization" : "Bearer " + req.cookies.aTok
+                "Authorization" : "Bearer " + accessToken
             }
         });
         const result2 = await axios.get(result1.data.next,{
             headers:{
-                "Authorization" : "Bearer " + req.cookies.aTok
+                "Authorization" : "Bearer " + accessToken
             }
         });
         const result3 = await axios.get(result2.data.next,{
             headers:{
-                "Authorization" : "Bearer " + req.cookies.aTok
+                "Authorization" : "Bearer " + accessToken
             }
         });
         const result4 = await axios.get(result3.data.next,{
             headers:{
-                "Authorization" : "Bearer " + req.cookies.aTok
+                "Authorization" : "Bearer " + accessToken
             }
         });
 
@@ -149,10 +152,10 @@ app.get("/start", async (req,res)=>{
         const pixelatedImg = await pixelateImage(randomAlbumCover,res);
         console.log(randomAlbumCover.width)
         console.log(randomAlbumCover.url);
-        res.send(`<img src="${pixelatedImg}"></img>`);
+        res.send(`<img src="${pixelatedImg}" width="200px"></img>`);
 
     } catch (error) {
-        console.log("ERROR: " + error.message);
+        console.log("ERROR HERE: " + error.message);
     }
     //res.send("start page loaded");
 });
@@ -179,6 +182,7 @@ app.listen(port,() => {
 async function getAccessToken (req) {
     // gets the refresh token through the cookie
     const refreshToken = req.cookies.rTok;
+    console.log("refresh token is " + refreshToken)
     // retrieves the new access token using the refresh token
     try {
         const result = await axios.post("https://accounts.spotify.com/api/token", {
@@ -192,6 +196,7 @@ async function getAccessToken (req) {
             
         });
         // returns the new access token
+        console.log("new access token: " + result.data.access_token)
         return result.data.access_token;
     } catch (error) {
         console.log("ERROR: " + error.message);
