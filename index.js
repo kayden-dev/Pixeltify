@@ -70,7 +70,7 @@ app.get("/callback", async (req, res) => {
             // saves the access token and refresh token as cookies
             res.cookie("aTok",result.data.access_token,{
                 httpOnly: true,
-                maxAge: 10,//3600000,
+                maxAge: 3600000,
                 sameSite: true,
                 secure: true
             });
@@ -95,24 +95,11 @@ app.get("/callback", async (req, res) => {
 // route for starting the game
 app.get("/start", async (req,res)=>{
     // retrieves the access token if it exists
-    let accessToken;
-    if (!req.cookies.aTok){
-        // if it doesn't exist, then resets the access token
-        console.log("access token does not exist");
-        accessToken = await getAccessToken(req);
-
-        res.cookie("aTok",accessToken,{
-            httpOnly: true,
-            maxAge: 3600000,
-            sameSite: true,
-            secure: true
-        });
-    } else {
-        accessToken = req.cookies.aTok;
-    }
+    const accessToken = await getAccessToken(req,res);
     console.log("received access token: " + accessToken);
     // gets the users top songs and chooses a random album
     try {
+        // currently, the list is the top 200 songs of the past year
         const result1 = await axios.get(/*`https://api.spotify.com/v1/search?q=${queryString.stringify({q:"starboy the weeknd"})}&type=track`*/"https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50&offset=0",{
             headers:{
                 "Authorization" : "Bearer " + accessToken
@@ -152,12 +139,72 @@ app.get("/start", async (req,res)=>{
         const pixelatedImg = await pixelateImage(randomAlbumCover,res);
         console.log(randomAlbumCover.width)
         console.log(randomAlbumCover.url);
-        res.send(`<img src="${pixelatedImg}" width="200px"></img>`);
+        res.render("play.ejs",{img:pixelatedImg});
 
     } catch (error) {
-        console.log("ERROR HERE: " + error.message);
+        console.log("ERROR: " + error.message);
     }
-    //res.send("start page loaded");
+});
+
+app.post("/search",async (req,res)=>{
+    // retrieves the access token if it exists
+    let accessToken;
+    if (!req.cookies.aTok){
+        // if it doesn't exist, then resets the access token
+        console.log("access token does not exist");
+        accessToken = await getAccessToken(req);
+
+        res.cookie("aTok",accessToken,{
+            httpOnly: true,
+            maxAge: 3600000,
+            sameSite: true,
+            secure: true
+        });
+    } else {
+        accessToken = req.cookies.aTok;
+    }
+
+    // searches for the albums related to the users search
+    const userSearch = req.body.searchInput;
+    try {
+        const result = await axios.get(`https://api.spotify.com/v1/search?q=${userSearch}&type=album&limit=5`,{
+            headers:{
+                "Authorization" : "Bearer " + accessToken
+            }
+        });
+        console.log("RAW DATA");
+        result.data.albums.items.forEach(album=>{
+            console.log(album.name + " by " + album.artists[0].name);
+        });
+
+        let userAlbums = [];
+        result.data.albums.items.forEach(newAlbum=>{
+            let inArray = false;
+            userAlbums.forEach(prevAlbum=>{
+                if (newAlbum.name === prevAlbum.name && newAlbum.artists[0].name === prevAlbum.artists[0].name){
+                    console.log(newAlbum.name + " matches with " + prevAlbum.name);
+                    inArray = true;
+                }
+            });
+            if (inArray === false){
+                userAlbums.push(newAlbum);
+                
+            }
+        });
+        console.log("FILTERED DATA")
+        userAlbums.forEach(album=>
+            console.log(album.name + " by " + album.artists[0].name)
+        )
+    } catch (error){
+        console.log("ERROR: " + error.message);
+    }
+
+    // search results will be in the format of an array of 
+    // album name, artist name, album url
+});
+
+app.post("/check",(req,res)=>{
+    // check the result the user chose
 });
 
 // TESTING if cookies are deleted at the end of lifetime specified
@@ -179,28 +226,47 @@ app.listen(port,() => {
 });
 
 // function gets the access token using the refresh token
-async function getAccessToken (req) {
-    // gets the refresh token through the cookie
-    const refreshToken = req.cookies.rTok;
-    console.log("refresh token is " + refreshToken)
-    // retrieves the new access token using the refresh token
-    try {
-        const result = await axios.post("https://accounts.spotify.com/api/token", {
-            grant_type: "refresh_token",
-            refresh_token: refreshToken
-        },{
-            headers:{
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Authorization" : "Basic " + (new Buffer.from(clientId + ':' + clientSecret).toString('base64'))
-            }
-            
-        });
-        // returns the new access token
-        console.log("new access token: " + result.data.access_token)
-        return result.data.access_token;
-    } catch (error) {
-        console.log("ERROR: " + error.message);
+async function getAccessToken (req,res) {
+    if (req.cookies.aTok){
+        return req.cookies.aTok
+
+        accessToken = await getAccessToken(req);
+    } else {
+        // if it doesn't exist, then resets the access token
+        console.log("access token does not exist");
+
+        // gets the refresh token through the cookie
+        const refreshToken = req.cookies.rTok;
+
+        // retrieves the new access token using the refresh token
+        try {
+            const result = await axios.post("https://accounts.spotify.com/api/token", {
+                grant_type: "refresh_token",
+                refresh_token: refreshToken
+            },{
+                headers:{
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "Authorization" : "Basic " + (new Buffer.from(clientId + ':' + clientSecret).toString('base64'))
+                }
+                
+            });
+            // returns the new access token
+            console.log("new access token: " + result.data.access_token)
+
+            res.cookie("aTok",result.data.access_token,{
+                httpOnly: true,
+                maxAge: 3600000,
+                sameSite: true,
+                secure: true
+            });
+
+            return result.data.access_token;
+        } catch (error) {
+            console.log("ERROR: " + error.message);
+        }
     }
+
+
 }
 
 // function pixelates an image and returns the link

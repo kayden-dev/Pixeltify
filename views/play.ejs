@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixeltify</title>
+</head>
+<body>
+    <!-- pixel image -->
+    <img src="<%= img %>" alt="pixelated image">
+
+    <!-- ONE FORM 
+     
+    if the user submits  the search bar, then that will be processed appropriately
+    if the user clicks one of the buttons, then that will be processed appropriatetely
+    -->
+    <form method="post" action="/search" autocomplete="off">
+      <input type="text" name="searchInput">
+      <input type="submit" value="search">
+    </form>
+    <% if (locals.albumList) { %>
+      <form method="post" action="/check">
+        <input type="hidden" name="searchRes" value="hello world 1">
+        <input id="testValue" type="submit" value="search">
+      </form>
+      <form method="post" action="/check">
+        <input type="hidden" name="searchRes" value="hello world 2">
+        <input id="testValue" type="submit" value="search">
+      </form>
+      <form method="post" action="/check">
+        <input type="hidden" name="searchRes" value="hello world 3">
+        <input id="testValue" type="submit" value="search">
+      </form>
+      <form method="post" action="/check">
+        <input type="hidden" name="searchRes" value="hello world 4">
+        <input id="testValue" type="submit" value="search">
+      </form>
+      <form method="post" action="/check">
+        <input type="hidden" name="searchRes" value="hello world 5">
+        <input id="testValue" type="submit" value="search">
+      </form>
+    <% } %>
+
+    <!-- search bar -->
+
+    <!-- results -->
+
+</body>
+</html>
