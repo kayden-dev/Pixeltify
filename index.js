@@ -101,7 +101,7 @@ app.get("/start", async (req,res)=>{
     // gets the users top songs and chooses a random album
     try {
         // currently, the list is the top 200 songs of the past year
-        const result1 = await axios.get(/*`https://api.spotify.com/v1/search?q=${queryString.stringify({q:"starboy the weeknd"})}&type=track`*/"https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50&offset=0",{
+        const result1 = await axios.get(/*`https://api.spotify.com/v1/search?${queryString.stringify({q:"alchemy by disclosure"})}&type=album`*/"https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50&offset=0",{
             headers:{
                 "Authorization" : "Bearer " + accessToken
             }
@@ -126,6 +126,7 @@ app.get("/start", async (req,res)=>{
         // chooses a random song and gets its album picture
         const topSongList = result1.data.items.concat(result2.data.items).concat(result3.data.items).concat(result4.data.items);
         const randomAlbumCover = topSongList[Math.floor(Math.random()*topSongList.length)].album.images[0];
+        console.log(randomAlbumCover.url);
 
         // saves the album url as a cookie
         res.cookie("img",randomAlbumCover.url);
@@ -219,10 +220,10 @@ app.post("/check", async(req,res)=>{
     const buffer2 = await image2.getBufferAsync(Jimp.MIME_JPEG);
 
     // check if the covers look the same
-    const result = await looksSame(buffer1,buffer2);
+    const result = await looksSame(buffer1,buffer2,{tolerance:10});
 
     // if they are the same, then display a page
-    console.log(result.equal);
+    console.log("testing with " + req.body.searchRes);
     if (result.equal) {
         res.render("play.ejs",{img:req.cookies.img});
     // if not, then make the image clearer, increase the number of guesses, and render the image clearer (check if the user has made the max num of guesses)
