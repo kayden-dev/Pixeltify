@@ -15,7 +15,7 @@
     if the user clicks one of the buttons, then that will be processed appropriatetely
     -->
     <form method="post" action="/search" autocomplete="off">
-      <input type="text" name="searchInput">
+      <input type="text" name="searchInput" maxlength="100">
       <input type="submit" value="search">
     </form>
 
@@ -26,6 +26,10 @@
         <input type="submit" value="<%= album.name %> by <%= album.artists[0].name %>">
       </form>
      <%}) %>
+    <% } %>
+
+    <% if (locals.error) { %>
+     <p><%= error %></p>
     <% } %>
 
     <!-- search bar -->

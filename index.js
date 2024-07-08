@@ -134,7 +134,7 @@ app.get("/start", async (req,res)=>{
         res.cookie("guess",0);
 
         // testing pixelating the image
-        const pixelatedImg = await pixelateImage(randomAlbumCover);
+        const pixelatedImg = await pixelateImage(randomAlbumCover,0);
         res.render("play.ejs",{img:pixelatedImg});
 
     } catch (error) {
@@ -169,12 +169,11 @@ app.post("/search",async (req,res)=>{
             }
         });
         console.log(`https://api.spotify.com/v1/search?${queryString.stringify({q: userSearch})}&type=album&limit=50`);
-
         // gets the top 5 results, ensuring there are no duplicates
         let userAlbums = [];
         // iterates through each album, and compares it to the albums currently in userAlbums
         result.data.albums.items.forEach(newAlbum=>{
-            console.log(newAlbum.name);
+            //console.log(newAlbum.name);
             // checks if the album is in userAlbums by comparing the name and artist name
             let inArray = false;
             userAlbums.forEach(prevAlbum=>{
@@ -190,9 +189,16 @@ app.post("/search",async (req,res)=>{
             }
         });
 
-        // renders the page with the options
-        const pixelatedImg = await pixelateImage(req.cookies.img);
-        res.render("play.ejs",{img:pixelatedImg,albums:userAlbums});
+        // checks if no results were returned
+        const pixelatedImg = await pixelateImage(req.cookies.img,req.cookies.guess);
+        if (userAlbums.length === 0){
+            // if there were no results returned, send an error
+            res.render("play.ejs",{img:pixelatedImg,error:"No results found"});
+        } else {
+            // if there were, then renders with the results
+            res.render("play.ejs",{img:pixelatedImg,albums:userAlbums});
+        }
+
 
     } catch (error){
         console.log("ERROR: " + error.message);
@@ -212,11 +218,35 @@ app.post("/check", async(req,res)=>{
     const buffer1 = await image1.getBufferAsync(Jimp.MIME_JPEG);
     const buffer2 = await image2.getBufferAsync(Jimp.MIME_JPEG);
 
-
+    // check if the covers look the same
     const result = await looksSame(buffer1,buffer2);
-    console.log(result.equal);
 
-    res.redirect("/start");
+    // if they are the same, then display a page
+    console.log(result.equal);
+    if (result.equal) {
+        res.render("play.ejs",{img:req.cookies.img});
+    // if not, then make the image clearer, increase the number of guesses, and render the image clearer (check if the user has made the max num of guesses)
+    } else {
+        // gets the current number of guesses and increments it
+        let numGuesses = Number(req.cookies.guess) + 1;
+        
+        // checks if the number of guesses has exceeded the maximum 
+        if (numGuesses > 4){
+            res.send("INCORRECT");
+        // if not, then renders the image clearer
+        } else {
+            // pixelates the image clearer
+            const pixelatedImg = await pixelateImage(req.cookies.img,numGuesses);
+
+            // saves the number of guesses
+            res.cookie("guess",numGuesses);
+
+            // renders the new page
+            res.render("play.ejs",{img:pixelatedImg});
+        }
+    }
+
+
 });
 
 app.listen(port,() => {
@@ -267,14 +297,18 @@ async function getAccessToken (req,res) {
 }
 
 // function pixelates an image and returns the link
-async function pixelateImage (imgURL) {
+async function pixelateImage (imgURL,numGuesses) {
     // NOTE: progression idea
     // image cell goes from 320 -> 160 -> 80 -> 40 -> 20
     // player gets 5 guesses per album
     try {
+        // gets the pixel size
+        const pixelSize = 320/Math.pow(2,numGuesses);
+        console.log("pixel size: " + pixelSize);
+
         // gets the image and pixelates it
         const image = await Jimp.read(imgURL);
-        image.pixelate(20);
+        image.pixelate( pixelSize);
 
         // saves the image into a buffer and converts it to a base64 string
         const buffer = await image.getBufferAsync(Jimp.MIME_JPEG);
