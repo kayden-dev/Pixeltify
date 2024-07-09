@@ -1,0 +1,50 @@
+.container {
+    height: 100vh;
+    width: 100%;
+    max-width: 400px;
+    gap: 20px;
+    margin: auto;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.form {
+    width:100%;
+}
+
+.search {
+    width:100%;
+    height:100%;
+}
+
+.img {
+    width:100%;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+
+}
+
+.inner-container {
+    width: 100%;
+}
+
+.inner-form {
+    width:100%;
+}
+
+.inner-search {
+    width:100%;
+    height:30px;
+}
+
+.placeholder {
+    width:100%;
+    height: 150px;
+}

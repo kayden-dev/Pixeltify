@@ -3,38 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/main.css">
     <title>Pixeltify</title>
 </head>
 <body>
-    <!-- pixel image -->
-    <img src="<%= img %>" alt="pixelated image">
 
-    <!-- ONE FORM 
-     
-    if the user submits  the search bar, then that will be processed appropriately
-    if the user clicks one of the buttons, then that will be processed appropriatetely
-    -->
-    <form method="post" action="/search" autocomplete="off">
-      <input type="text" name="searchInput" maxlength="100">
-      <input type="submit" value="search">
-    </form>
+  <div class="container">
+        <!-- pixel image -->
+        <img class="img" src="<%= img %>" alt="pixelated image">
 
-    <% if (locals.albums) { %>
-     <% albums.forEach(album=>{ %>
-      <form method="post" action="/check">
-        <input type="hidden" name="searchRes" value="<%= album.images[0].url %>">
-        <input type="submit" value="<%= album.name %> by <%= album.artists[0].name %>">
-      </form>
-     <%}) %>
-    <% } %>
-
-    <% if (locals.error) { %>
-     <p><%= error %></p>
-    <% } %>
-
-    <!-- search bar -->
-
-    <!-- results -->
+        <!-- ONE FORM 
+         
+        if the user submits  the search bar, then that will be processed appropriately
+        if the user clicks one of the buttons, then that will be processed appropriatetely
+        -->
+        <form class="form" method="post" action="/search" autocomplete="off">
+          <input class="search" type="text" name="searchInput" maxlength="100" placeholder="enter an album,artist or song">
+        </form>
+        
+        <div class="inner-container">
+          <% if (locals.albums) { %>
+            <% albums.forEach(album=>{ %>
+             <form class="inner-form" method="post" action="/check">
+               <input type="hidden" name="searchRes" value="<%= album.images[0].url %>">
+               <input class="inner-search" type="submit" value="<%= album.name %> by <%= album.artists[0].name %>">
+             </form>
+            <%}) %>
+           <% } else { %>
+              <div class="placeholder"></div>
+            <% } %>
+           <% if (locals.error) { %>
+            <p><%= error %></p>
+           <% } %>
+        </div>
+  </div>
 
 </body>
 </html>
