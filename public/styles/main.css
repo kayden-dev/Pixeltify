@@ -18,10 +18,13 @@
 .search {
     width:100%;
     height:100%;
+    border: 1px solid black;
+    padding: 5px;
 }
 
 .img {
     width:100%;
+    border: 1px solid black;
 }
 
 * {
@@ -33,15 +36,22 @@
 
 .inner-container {
     width: 100%;
+    border: 1px solid black;
 }
 
 .inner-form {
     width:100%;
+    
 }
 
 .inner-search {
     width:100%;
     height:30px;
+    background-color: white;
+    border: 1px solid lightgray;
+    border-left:0;
+    border-right:0;
+    border-top:0;
 }
 
 .placeholder {
