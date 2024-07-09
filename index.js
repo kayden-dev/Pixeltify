@@ -111,20 +111,9 @@ app.get("/start", async (req,res)=>{
                 "Authorization" : "Bearer " + accessToken
             }
         });
-        const result3 = await axios.get(result2.data.next,{
-            headers:{
-                "Authorization" : "Bearer " + accessToken
-            }
-        });
-        const result4 = await axios.get(result3.data.next,{
-            headers:{
-                "Authorization" : "Bearer " + accessToken
-            }
-        });
-
 
         // chooses a random song and gets its album picture
-        const topSongList = result1.data.items.concat(result2.data.items).concat(result3.data.items).concat(result4.data.items);
+        const topSongList = result1.data.items.concat(result2.data.items);
         const randomAlbumCover = topSongList[Math.floor(Math.random()*topSongList.length)].album.images[0];
         console.log(randomAlbumCover.url);
 
@@ -231,7 +220,7 @@ app.post("/check", async(req,res)=>{
         // gets the current number of guesses and increments it
         let numGuesses = Number(req.cookies.guess) + 1;
         
-        // checks if the number of guesses has exceeded the maximum 
+        // checks if the number of guesses has exceeded the maximum (5)
         if (numGuesses > 4){
             res.send("INCORRECT");
         // if not, then renders the image clearer
