@@ -12,37 +12,55 @@
       }
     </style>
   </head>
-<body>
+<body class="font-monospace">
     <div class="container custom-width">
 
-      <div class="row gy-3">
+      <div class="row gy-4">
+
         <div class="pt-5 col-12">
-          <img class ="rounded img-fluid" src="https://i.scdn.co/image/ab67616d0000b273427d87c552dadb429dfeaf34" alt="test image">
+          <div class="card border-dark">
+            <img src="https://i.scdn.co/image/ab67616d0000b273427d87c552dadb429dfeaf34" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title placeholder-wave">
+                <span class="placeholder col-6"></span>
+              </h5>
+              <p class="card-subtitle placeholder-wave">
+                <span class="placeholder col-4"></span>
+              </p>
+            </div>
+          </div>
         </div>
       
-        <!-- <form class="form col-12" method="post" action="/search" autocomplete="off">
-          <input type="text" class="form-control form-control-sm" aria-describedby="searchHelpBlock">
+        <form class="form col-12" method="post" action="/search" autocomplete="off">
+          <input type="text" class="form-control form-control-sm" aria-describedby="searchHelpBlock" style="border: 1px solid; box-shadow:none;">
           <div id="searchHelpBlock" class="form-text">
             5/5 guesses remaining
           </div>
         </form>
 
+        <!-- <div class="col-12 text-wrap ">
+          <small>
+            tip: you can also enter the names of artists or songs to find related albums!
+        </small>
+        </div> -->
+
         <form class="form col-12" method="post" action="/check">
-          <div class="list-group">
+          <div class="list-group" style="border: 1px solid;">
             <button type="button" class="list-group-item list-group-item-action"> Placeholder <small>by Various Artists</small></button>
             <button type="button" class="list-group-item list-group-item-action"> Placeholder <small>by Various Artists</small></button>
             <button type="button" class="list-group-item list-group-item-action"> Placeholder <small>by Various Artists</small></button>
             <button type="button" class="list-group-item list-group-item-action"> Placeholder <small>by Various Artists</small></button>
             <button type="button" class="list-group-item list-group-item-action"> Placeholder <small>by Various Artists</small></button>
           </div>
-        </form> -->
+        </form>
 
-        <div class="col-12 text-wrap text-monospace">
-            this is a testing djhajkdahdjkashdjk asdad asd add asda adad asd asd asd adasd asd asd asd ad asdas das d
-        </div>
+        <!-- <div class="col-12 d-grid">
+          <button type="button" class="btn btn-outline-dark btn">play again</button>
+        </div> -->
 
       </div>
     </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
