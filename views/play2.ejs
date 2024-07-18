@@ -12,19 +12,19 @@
       }
     </style>
   </head>
-<body class="font-monospace">
+<body class="font-monospace" style="background-color:#FFFFF0">
     <div class="container custom-width">
 
       <div class="row gy-4">
 
         <div class="pt-5 col-12">
-          <div class="card border-dark">
-            <img src="https://i.scdn.co/image/ab67616d0000b273427d87c552dadb429dfeaf34" class="card-img-top" alt="...">
+          <div class="card border-dark" style="background-color:#FFFFF0">
+            <img src="<%= img %>" class="card-img-top" alt="pixelated album cover">
             <div class="card-body">
-              <h5 class="card-title placeholder-wave">
+              <h5 class="card-title">
                 <span class="placeholder col-6"></span>
               </h5>
-              <p class="card-subtitle placeholder-wave">
+              <p class="card-subtitle">
                 <span class="placeholder col-4"></span>
               </p>
             </div>
@@ -32,28 +32,29 @@
         </div>
       
         <form class="form col-12" method="post" action="/search" autocomplete="off">
-          <input type="text" class="form-control form-control-sm" aria-describedby="searchHelpBlock" style="border: 1px solid; box-shadow:none;">
+          <label for="searchLabel" class="form-label">guess the album cover</label>
+          <input type="text" class="form-control form-control-sm" id="searchLabel" name="searchInput" aria-describedby="searchHelpBlock" style="border: 1px solid; box-shadow:none; background-color:#FFFFF0">
           <div id="searchHelpBlock" class="form-text">
-            5/5 guesses remaining
+            <%= 5-guess %>/5 guesses remaining
           </div>
         </form>
 
-        <!-- <div class="col-12 text-wrap ">
-          <small>
-            tip: you can also enter the names of artists or songs to find related albums!
-        </small>
-        </div> -->
-
-        <form class="form col-12" method="post" action="/check">
-          <div class="list-group" style="border: 1px solid;">
-            <button type="button" class="list-group-item list-group-item-action"> Placeholder <small>by Various Artists</small></button>
-            <button type="button" class="list-group-item list-group-item-action"> Placeholder <small>by Various Artists</small></button>
-            <button type="button" class="list-group-item list-group-item-action"> Placeholder <small>by Various Artists</small></button>
-            <button type="button" class="list-group-item list-group-item-action"> Placeholder <small>by Various Artists</small></button>
-            <button type="button" class="list-group-item list-group-item-action"> Placeholder <small>by Various Artists</small></button>
-          </div>
-        </form>
-
+        <% if (locals.albums) { %>
+          <form class="form col-12 searchForm" method="post" action="/check">
+            <input class="hidden-url" type="hidden" name="searchRes" value="">
+            <div class="list-group" style="border: 1px solid;">
+              <% albums.forEach(album=>{ %>
+                <button type="button" class="list-group-item list-group-item-action res-btn" style="background-color:#FFFFF0" id="<%= album.images[0].url%>"><b><%= album.name %></b> <small><%= album.artists[0].name%> </small></button>
+              <%}) %>
+            </div>
+          </form>
+        <% } else { %>
+          <div class="col-12 text-wrap ">
+            <small>
+              tip: you can also enter the names of artists or songs to find related albums!
+          </small>
+        </div>
+        <% } %>
         <!-- <div class="col-12 d-grid">
           <button type="button" class="btn btn-outline-dark btn">play again</button>
         </div> -->
@@ -62,5 +63,7 @@
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="game.js"></script>
 </body>
 </html>

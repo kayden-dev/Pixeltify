@@ -126,7 +126,7 @@ app.get("/start", async (req,res)=>{
 
         // testing pixelating the image
         const pixelatedImg = await pixelateImage(randomAlbumCover,0);
-        res.render("play.ejs",{img:pixelatedImg});
+        res.render("play2.ejs",{img:pixelatedImg,guess:0});
 
     } catch (error) {
         console.log("ERROR: " + error.message);
@@ -184,10 +184,10 @@ app.post("/search",async (req,res)=>{
         const pixelatedImg = await pixelateImage(req.cookies.img,req.cookies.guess);
         if (userAlbums.length === 0){
             // if there were no results returned, send an error
-            res.render("play.ejs",{img:pixelatedImg,error:"No results found"});
+            res.render("play2.ejs",{img:pixelatedImg,error:"No results found",guess:req.cookies.guess});
         } else {
             // if there were, then renders with the results
-            res.render("play.ejs",{img:pixelatedImg,albums:userAlbums});
+            res.render("play2.ejs",{img:pixelatedImg,albums:userAlbums,guess:req.cookies.guess});
         }
 
 
@@ -215,7 +215,7 @@ app.post("/check", async(req,res)=>{
     // if they are the same, then display a page
     console.log("testing with " + req.body.searchRes);
     if (result.equal) {
-        res.render("play.ejs",{img:req.cookies.img});
+        res.render("play2.ejs",{img:req.cookies.img,guess:req.cookies.guess});
     // if not, then make the image clearer, increase the number of guesses, and render the image clearer (check if the user has made the max num of guesses)
     } else {
         // gets the current number of guesses and increments it
@@ -233,7 +233,7 @@ app.post("/check", async(req,res)=>{
             res.cookie("guess",numGuesses);
 
             // renders the new page
-            res.render("play.ejs",{img:pixelatedImg});
+            res.render("play2.ejs",{img:pixelatedImg,guess:numGuesses});
         }
     }
 
