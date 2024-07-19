@@ -113,19 +113,21 @@ app.get("/start", async (req,res)=>{
             }
         });
 
-        // chooses a random song and gets its album picture
+        // chooses a random song and gets its album
         const topSongList = result1.data.items.concat(result2.data.items);
-        const randomAlbumCover = topSongList[Math.floor(Math.random()*topSongList.length)].album.images[0];
-        console.log(randomAlbumCover.url);
+        const randomAlbum = topSongList[Math.floor(Math.random()*topSongList.length)].album;
 
-        // saves the album url as a cookie
-        res.cookie("img",randomAlbumCover.url);
+        // saves the album id as a cookie
+        res.cookie("alb",randomAlbum.id);
+
+        // saves the image as a cookie
+        res.cookie("img",randomAlbum.images[0].url);
 
         // initialises the number of guesses
         res.cookie("guess",0);
 
         // testing pixelating the image
-        const pixelatedImg = await pixelateImage(randomAlbumCover,0);
+        const pixelatedImg = await pixelateImage(randomAlbum.images[0].url,0);
         res.render("play2.ejs",{img:pixelatedImg,guess:0});
 
     } catch (error) {
@@ -312,3 +314,5 @@ async function pixelateImage (imgURL,numGuesses) {
         console.log("Error processing image" + error.message);
     }
 }
+
+// TODO MAKE A FUNCTION TO GET THE NAME OF ALBUM AND ARTIST TO DISPLAY AT THE END + ERROR HANDLIND
