@@ -203,6 +203,7 @@ app.post("/check", async(req,res)=>{
     // check the result the user chose
     console.log("CHECKING...");
 
+
     // converts the urls to images
     const image1 = await Jimp.read(req.body.searchRes);
     const image2 = await Jimp.read(req.cookies.img);
@@ -217,7 +218,9 @@ app.post("/check", async(req,res)=>{
     // if they are the same, then display a page
     console.log("testing with " + req.body.searchRes);
     if (result.equal) {
-        res.render("play2.ejs",{img:req.cookies.img,guess:req.cookies.guess});
+        // gets the name and artists of the album
+        const [albumName,albumArtist] = await getAlbumName(req.cookies.alb,req.cookies.aTok);
+        res.render("play2.ejs",{img:req.cookies.img,guess:req.cookies.guess,details:[albumName,albumArtist]});
     // if not, then make the image clearer, increase the number of guesses, and render the image clearer (check if the user has made the max num of guesses)
     } else {
         // gets the current number of guesses and increments it
@@ -315,4 +318,23 @@ async function pixelateImage (imgURL,numGuesses) {
     }
 }
 
-// TODO MAKE A FUNCTION TO GET THE NAME OF ALBUM AND ARTIST TO DISPLAY AT THE END + ERROR HANDLIND
+// TODO MAKE A FUNCTION TO GET THE NAME OF ALBUM AND ARTIST TO DISPLAY AT THE END + ERROR HANDLING
+async function getAlbumName(albumId,accessToken){
+    
+    try {
+        // searches for the album using the spotify ID
+        const result = await axios.get(`https://api.spotify.com/v1/albums/${albumId}`,{
+            headers:{
+                "Authorization" : "Bearer " + accessToken
+            }
+        });
+        // gets the name and artist of the album
+        const albumName = result.data.name;
+        const albumArtist = result.data.artists[0].name;
+
+        return [albumName,albumArtist];
+    } catch (error) {
+        console.log("ERROR" + error.message);
+    }
+    // saves the name and artist name as an array and return
+}
