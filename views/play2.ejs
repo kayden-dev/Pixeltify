@@ -21,16 +21,29 @@
           <div class="card border-dark" style="background-color:#FFFFF0">
             <img src="<%= img %>" class="card-img-top" alt="pixelated album cover">
             <div class="card-body">
-              <h5 class="card-title">
-                <span class="placeholder col-6"></span>
-              </h5>
-              <p class="card-subtitle">
-                <span class="placeholder col-4"></span>
-              </p>
+              <% if (locals.details) { %>
+                <h5 class="card-title">
+                  <%= details[0] %>
+                </h5>
+                <p class="card-subtitle">
+                  <%= details[1] %>
+                </p>
+              <% }else { %>
+                <h5 class="card-title">
+                  <span class="placeholder col-6"></span>
+                </h5>
+                <p class="card-subtitle">
+                  <span class="placeholder col-4"></span>
+                </p>
+              <% } %>
             </div>
           </div>
         </div>
-      
+      <% if (locals.details) { %>
+        <form action="/start" method="GET" class="col-12 d-grid">
+          <button type="submit" class="btn btn-outline-dark btn">play again</button>
+        </form>
+      <% } else { %>
         <form class="form col-12" method="post" action="/search" autocomplete="off">
           <label for="searchLabel" class="form-label">guess the album cover</label>
           <input type="text" class="form-control form-control-sm" id="searchLabel" name="searchInput" aria-describedby="searchHelpBlock" style="border: 1px solid; box-shadow:none; background-color:#FFFFF0">
@@ -55,9 +68,7 @@
           </small>
         </div>
         <% } %>
-        <!-- <div class="col-12 d-grid">
-          <button type="button" class="btn btn-outline-dark btn">play again</button>
-        </div> -->
+      <% } %>
 
       </div>
     </div>
