@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="styles/main.css">
   </head>
 <body class="font-monospace" style="background-color:#FFFFF0">
+<<<<<<< HEAD
     <div class="container">
       
       <div class="item card border-dark" style="background-color:#FFFFF0">
@@ -37,6 +38,27 @@
         </form>
       <% } else { %>
         <form class="item form" method="post" action="/search" autocomplete="off">
+=======
+    <div class="container custom-width">
+
+      <div class="row gy-4">
+
+        <div class="pt-5 col-12">
+          <div class="card border-dark" style="background-color:#FFFFF0">
+            <img src="<%= img %>" class="card-img-top" alt="pixelated album cover">
+            <div class="card-body">
+              <h5 class="card-title">
+                <span class="placeholder col-6"></span>
+              </h5>
+              <p class="card-subtitle">
+                <span class="placeholder col-4"></span>
+              </p>
+            </div>
+          </div>
+        </div>
+      
+        <form class="form col-12" method="post" action="/search" autocomplete="off">
+>>>>>>> parent of 9c3ecb9 (play again feature works)
           <label for="searchLabel" class="form-label">guess the album cover</label>
           <input type="text" class="form-control form-control-sm" id="searchLabel" name="searchInput" aria-describedby="searchHelpBlock" style="border: 1px solid; box-shadow:none; background-color:#FFFFF0">
           <div id="searchHelpBlock" class="form-text">
@@ -60,7 +82,15 @@
           </small>
         </div>
         <% } %>
+<<<<<<< HEAD
       <% } %>
+=======
+        <!-- <div class="col-12 d-grid">
+          <button type="button" class="btn btn-outline-dark btn">play again</button>
+        </div> -->
+
+      </div>
+>>>>>>> parent of 9c3ecb9 (play again feature works)
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
