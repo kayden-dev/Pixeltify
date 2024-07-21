@@ -102,7 +102,7 @@ app.get("/start", async (req,res)=>{
     // gets the users top songs and chooses a random album
     try {
         // currently, the list is the top 200 songs of the past year
-        const result1 = await axios.get("https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50&offset=0",{
+        const result1 = await axios.get(/*`https://api.spotify.com/v1/search?${queryString.stringify({q:"alchemy by disclosure"})}&type=album`*/"https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50&offset=0",{
             headers:{
                 "Authorization" : "Bearer " + accessToken
             }
@@ -228,9 +228,7 @@ app.post("/check", async(req,res)=>{
         
         // checks if the number of guesses has exceeded the maximum (5)
         if (numGuesses > 4){
-            // gets the name and artists of the album
-            const [albumName,albumArtist] = await getAlbumName(req.cookies.alb,req.cookies.aTok);
-            res.render("play2.ejs",{img:req.cookies.img,guess:req.cookies.guess,details:[albumName,albumArtist]});
+            res.send(`<img src=${req.cookies.img}></img>`);
         // if not, then renders the image clearer
         } else {
             // pixelates the image clearer
@@ -334,10 +332,9 @@ async function getAlbumName(albumId,accessToken){
         const albumName = result.data.name;
         const albumArtist = result.data.artists[0].name;
 
-        // saves the name and artist name as an array and return
         return [albumName,albumArtist];
     } catch (error) {
         console.log("ERROR" + error.message);
     }
-    
+    // saves the name and artist name as an array and return
 }
