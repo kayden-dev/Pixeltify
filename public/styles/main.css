@@ -1,3 +1,19 @@
-*{
-    background-color: red;
-}
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  
+  .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+  }
+  
+  .item {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 400px;
+  }
+  
