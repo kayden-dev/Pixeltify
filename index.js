@@ -19,7 +19,7 @@ app.use(express.static("public"));
 // constants related to the application
 const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
-const redirectUri = "http://localhost:3000/callback";
+const redirectUri = process.env.REDIRECT_URI;
 
 // route for the home page
 app.get("/",(req,res)=>{
