@@ -10,13 +10,13 @@ import looksSame from "looks-same";
 
 // creates the express app and sets up relevant middleware
 const app = express();
-const port = 3000;
 dotenv.config();
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 // constants related to the application
+const port = process.env.PORT;
 const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 const redirectUri = process.env.REDIRECT_URI;
