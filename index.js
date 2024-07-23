@@ -97,7 +97,22 @@ app.get("/callback", async (req, res) => {
 // route for starting the game
 app.get("/start", async (req,res)=>{
     // retrieves the access token if it exists
-    const accessToken = await getAccessToken(req,res);
+    let accessToken;
+    if (!req.cookies.aTok){
+        // if it doesn't exist, then resets the access token
+        console.log("access token does not exist");
+        accessToken = await getAccessToken(req);
+
+        res.cookie("aTok",accessToken,{
+            httpOnly: true,
+            maxAge: 3600000,
+            sameSite: true,
+            secure: true
+        });
+    } else {
+        accessToken = req.cookies.aTok;
+    }
+    
     console.log("received access token: " + accessToken);
     // gets the users top songs and chooses a random album
     try {
