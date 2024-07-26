@@ -104,7 +104,6 @@ app.get("/start", async (req,res)=>{
         res.cookie("aTok",accessToken,{
             httpOnly: true,
             maxAge: 3600000,
-            sameSite: true,
             secure: true
         });
     } else {
@@ -159,7 +158,6 @@ app.post("/search",async (req,res)=>{
         res.cookie("aTok",accessToken,{
             httpOnly: true,
             maxAge: 3600000,
-            sameSite: true,
             secure: true
         });
     } else {
@@ -294,7 +292,6 @@ async function getAccessToken (req,res) {
             res.cookie("aTok",result.data.access_token,{
                 httpOnly: true,
                 maxAge: 3600000,
-                sameSite: true,
                 secure: true
             });
 
