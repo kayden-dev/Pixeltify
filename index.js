@@ -243,7 +243,9 @@ app.post("/check", async(req,res)=>{
         
         // checks if the number of guesses has exceeded the maximum (5)
         if (numGuesses > 4){
-            res.send(`<img src=${req.cookies.img}></img>`);
+            // gets the name and artists of the album
+            const [albumName,albumArtist] = await getAlbumName(req.cookies.alb,req.cookies.aTok);
+            res.render("play2.ejs",{img:req.cookies.img,guess:req.cookies.guess,details:[albumName,albumArtist]});
         // if not, then renders the image clearer
         } else {
             // pixelates the image clearer
