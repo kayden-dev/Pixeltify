@@ -211,9 +211,24 @@ app.post("/search",async (req,res)=>{
 
 
 app.post("/check", async(req,res)=>{
+    // retrieves the access token if it exists
+    let accessToken;
+    if (!req.cookies.aTok){
+        // if it doesn't exist, then resets the access token
+        console.log("access token does not exist");
+        accessToken = await getAccessToken(req);
+
+        res.cookie("aTok",accessToken,{
+            httpOnly: true,
+            maxAge: 3600000,
+            secure: true
+        });
+    } else {
+        accessToken = req.cookies.aTok;
+    }
+
     // check the result the user chose
     console.log("CHECKING...");
-
 
     // converts the urls to images
     const image1 = await Jimp.read(req.body.searchRes);
@@ -230,7 +245,7 @@ app.post("/check", async(req,res)=>{
     console.log("testing with " + req.body.searchRes);
     if (result.equal) {
         // gets the name and artists of the album
-        const [albumName,albumArtist] = await getAlbumName(req.cookies.alb,req.cookies.aTok);
+        const [albumName,albumArtist] = await getAlbumName(req.cookies.alb,accessToken);
         res.render("play2.ejs",{img:req.cookies.img,guess:req.cookies.guess,details:[albumName,albumArtist]});
     // if not, then make the image clearer, increase the number of guesses, and render the image clearer (check if the user has made the max num of guesses)
     } else {
@@ -240,7 +255,7 @@ app.post("/check", async(req,res)=>{
         // checks if the number of guesses has exceeded the maximum (5)
         if (numGuesses > 4){
             // gets the name and artists of the album
-            const [albumName,albumArtist] = await getAlbumName(req.cookies.alb,req.cookies.aTok);
+            const [albumName,albumArtist] = await getAlbumName(req.cookies.alb,accessToken);
             res.render("play2.ejs",{img:req.cookies.img,guess:req.cookies.guess,details:[albumName,albumArtist]});
         // if not, then renders the image clearer
         } else {
@@ -332,7 +347,6 @@ async function pixelateImage (imgURL,numGuesses) {
 
 // TODO MAKE A FUNCTION TO GET THE NAME OF ALBUM AND ARTIST TO DISPLAY AT THE END + ERROR HANDLING
 async function getAlbumName(albumId,accessToken){
-    
     try {
         // searches for the album using the spotify ID
         const result = await axios.get(`https://api.spotify.com/v1/albums/${albumId}`,{
