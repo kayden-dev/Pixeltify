@@ -73,12 +73,10 @@ app.get("/callback", async (req, res) => {
             res.cookie("aTok",result.data.access_token,{
                 httpOnly: true,
                 maxAge: 3600000,
-                sameSite: true,
                 secure: true
             });
             res.cookie("rTok",result.data.refresh_token,{
                 httpOnly: true,
-                sameSite: true,
                 secure: true
             });
 
