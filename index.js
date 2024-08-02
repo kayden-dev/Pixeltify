@@ -113,8 +113,8 @@ app.get("/start", async (req,res)=>{
     console.log("received access token: " + accessToken);
     // gets the users top songs and chooses a random album
     try {
-        // currently, the list is the top 100 songs of the past year
-        const result1 = await axios.get(/*`https://api.spotify.com/v1/search?${queryString.stringify({q:"alchemy by disclosure"})}&type=album`*/"https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50&offset=0",{
+        // currently, the list is the top 200 songs of the past year
+        const result1 = await axios.get(/*`https://api.spotify.com/v1/search?${queryString.stringify({q:"alchemy by disclosure"})}&type=album`*/"https://api.spotify.com/v1/me/top/tracks?time_range=medium_term&limit=50&offset=0",{
             headers:{
                 "Authorization" : "Bearer " + accessToken
             }
@@ -124,9 +124,19 @@ app.get("/start", async (req,res)=>{
                 "Authorization" : "Bearer " + accessToken
             }
         });
+        const result3 = await axios.get(result2.data.next,{
+            headers:{
+                "Authorization" : "Bearer " + accessToken
+            }
+        });
+        const result4 = await axios.get(result3.data.next,{
+            headers:{
+                "Authorization" : "Bearer " + accessToken
+            }
+        });
 
         // chooses a random song and gets its album
-        const topSongList = result1.data.items.concat(result2.data.items);
+        const topSongList = result1.data.items.concat(result2.data.items).concat(result3.data.items).concat(result4.data.items);
         const randomAlbum = topSongList[Math.floor(Math.random()*topSongList.length)].album;
 
         // saves the album id as a cookie
