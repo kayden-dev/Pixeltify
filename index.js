@@ -114,7 +114,7 @@ app.get("/start", async (req,res)=>{
     // gets the users top songs and chooses a random album
     try {
         // currently, the list is the top 200 songs of the past year
-        const result1 = await axios.get(/*`https://api.spotify.com/v1/search?${queryString.stringify({q:"alchemy by disclosure"})}&type=album`*/"https://api.spotify.com/v1/me/top/tracks?time_range=medium_term&limit=50&offset=0",{
+        const result1 = await axios.get(/*`https://api.spotify.com/v1/search?${queryString.stringify({q:"alchemy by disclosure"})}&type=album`*/"https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50&offset=0",{
             headers:{
                 "Authorization" : "Bearer " + accessToken
             }
