@@ -2,8 +2,6 @@
 
 A full-stack music guessing game that uses Spotify OAuth and a server-side image pixelation pipeline to turn album art into a progressively clearer puzzle across five rounds.
 
-Built as a solo project (Mar 2024 – May 2024), integrating the Spotify Web API, OAuth 2.0 with CSRF protection, and Jimp for image processing.
-
 ## Features
 
 - **Spotify Login** — OAuth 2.0 authorization code flow with CSRF state validation and HTTP-only cookie-based sessions.
